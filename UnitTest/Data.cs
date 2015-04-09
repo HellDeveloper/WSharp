@@ -110,7 +110,7 @@ namespace UnitTest
                 var where = Factory.CreateParameters();
                 where.Add("@FromName", "Jack", "FromName =");
                 where.Add("", "ReadTime IS NULL", "");// 拼接SQL, ParameterName is null or whitespace
-                string update_sql = conn.BuildUpdateSql(Factory.LETTER_TABLE, where, args);
+                string update_sql = conn.BuildUpdateSql(Factory.LETTER_TABLE, args, where);
                 args.AddRange(where);
                 conn.ExecuteNonQuery(update_sql, args);
             }

@@ -356,7 +356,7 @@ namespace WSharp.Core
 		/// <returns></returns>
 		public static string TryToString<T>(this T t) 
 		{
-			return t == null ? String.Empty : t.ToString();
+			return t == null ? null : t.ToString();
 		}
 		
 
