@@ -25,12 +25,12 @@ namespace WSharp.Data
         /// </summary>
         public static char ParameterNamePerfix
         {
-            get 
+            get
             {
                 return System.Configuration.ConfigurationManager.AppSettings["ParameterNamePerfix"].TryToChar() ?? CommonSql.DEFAULT_PARAMETER_NAME_PERFIX;
             }
         }
-        
+
         /// <summary>获取字段名</summary>
         /// <param name="param"></param>
         /// <returns></returns>
@@ -107,13 +107,35 @@ namespace WSharp.Data
         {
             return String.Format("{0} = {1}", CommonSql.GetFieldName(param), CommonSql.BuildParameterValue(param));
         }
+
+        /// <summary>
+        /// 条件Sql排序规则
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static int ConditionSqlSort(IDataParameter left, IDataParameter right)
+        {
+            if (String.IsNullOrWhiteSpace(right.ParameterName))
+                return -1;
+            if (String.IsNullOrWhiteSpace(left.ParameterName))
+                return 1;
+            string first_compare = "Ii=<>Ll";
+            int left_compare = first_compare.IndexOf(left.GetComparer()[0]);
+            int right_compare = first_compare.IndexOf(right.GetComparer()[0]);
+            if (left_compare > right_compare)
+                return 1;
+            else if (left_compare < right_compare)
+                return -1;
+            return 0;
+        }
         #endregion
 
-         /// <summary>
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="param"></param>
-        /// <param name="func"></param>
+        /// <param name="func">value值生成的方法</param>
         /// <returns></returns>
         public static string ConditionSql(IDataParameter param, Func<IDataParameter, object> func)
         {
@@ -133,6 +155,19 @@ namespace WSharp.Data
         /// <returns></returns>
         public static string ConditionSql(IEnumerable<IDataParameter> args, Func<IDataParameter, object> func)
         {
+            return CommonSql.ConditionSql(args, func, CommonSql.ConditionSqlSort);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="func">生成的方法</param>
+        /// <param name="sort">排序规则</param>
+        /// <returns></returns>
+        public static string ConditionSql(IEnumerable<IDataParameter> args, Func<IDataParameter, object> func, Func<IDataParameter, IDataParameter, int> sort)
+        {
+            args = args.OrderBy(sort);
             var temp = EEnumerable.ToStringBuilder(args, func, " AND ");
             return temp == null ? String.Empty : temp.ToString();
         }
@@ -196,7 +231,7 @@ namespace WSharp.Data
                 return "DELETE FROM " + table_name;
             return String.Format("DELETE FROM {0} WHERE {1}", table_name, where);
         }
-        
+
         /// <summary>
         /// 构建查询的SQL
         /// </summary>

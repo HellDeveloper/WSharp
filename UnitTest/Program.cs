@@ -8,13 +8,22 @@ using System.Threading;
 using WSharp.Core;
 using WSharp.Generic;
 
-namespace Aes_Example
+namespace UnitTest
 {
-    class AesExample
+    class Program
     {
         public static void Main(string[] args)
         {
-            
+            char[] array = { '>', '<', '=', 'l' };
+            foreach (var item in array)
+            {
+                Console.WriteLine("{0}:{1}", item, (int)item);
+                
+            }
+
+            Data data = new Data();
+            data.ExecuteSelectSql();
+
             Console.ReadKey(true);
         }
 

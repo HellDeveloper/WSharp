@@ -117,7 +117,7 @@ namespace WSharp.Data
             int index = param.SourceColumn.IndexOf(Assist.WHITE_SPACE);
             if (index < 0)
                 return String.Empty ;
-            return param.SourceColumn.Substring(index);
+            return param.SourceColumn.Substring(index).Trim();
         }
 
         /// <summary>

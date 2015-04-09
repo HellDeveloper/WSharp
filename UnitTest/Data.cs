@@ -141,8 +141,8 @@ namespace UnitTest
                     new List<SqlParameter>(),
                     new List<SqlParameter>()
                 };
-                list[0].Add(new SqlParameter("@Title", "Hi") { SourceColumn = "Title =" });
                 list[0].Add(new SqlParameter("@Content1", "%？！") { SourceColumn = "Contents LIKE" });
+                list[0].Add(new SqlParameter("@Title", "Hi") { SourceColumn = "Title =" });
                 list[0].Add(new SqlParameter("", "Contents IS NOT NULL")); // 拼接SQL
                 list[1].Add(new SqlParameter("@Title2", "Hi") { SourceColumn = "Title =" });
                 list[1].Add(new SqlParameter("@Content2", "%？！") { SourceColumn = "Contents LIKE" });
