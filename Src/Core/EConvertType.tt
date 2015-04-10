@@ -12,10 +12,11 @@ using System.Threading.Tasks;
 
 namespace WSharp.Core
 {
+	#region bytes
 	/// <summary>
     /// 
     /// </summary>
-	public static class ByteConverter
+	public static partial class EConvertType
 	{
 		<#
 		string[] types = 
@@ -93,5 +94,77 @@ namespace WSharp.Core
 			return encoding.GetString(bytes);
 		}
 	}
+	#endregion
+
+	#region TryTo
+	/// <summary>
+    /// 类型转换工具类
+    /// </summary>
+	public static partial class EConvertType
+    {
+	<#
+		string that_object = "";
+		string that_string = "this ";
+		string[] try_tos = 
+		{ 
+			"Short", "Int", "Long", 
+			"UShort", "UInt", "ULong", 
+			"Float", "Double", "Decimal", 
+			"Char",
+			"Bool",
+			"DateTime"
+		};
+
+		foreach(string to in try_tos)
+		{
+			string lower = to.ToLower();
+			if(to == "DateTime")
+			{
+				lower = "System." + to;
+			}
+		#>
+
+		/// <summary>
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns>转换失败返回null</returns>
+		public static <#=lower #>? TryTo<#=to #>(<#=that_object #>object obj)
+		{
+			if (obj == null)
+				return null;
+			else if (obj is <#=lower #>)
+				return (<#=lower #>)obj;
+			<#=lower #> result;
+			if(<#=lower #>.TryParse(obj.ToString(), out result))
+				return result;
+			return null;
+		}
+
+		/// <summary>
+		/// </summary>
+		/// <param name="str"></param>
+		/// <returns>转换失败返回null</returns>
+		public static <#=lower #>? TryTo<#=to #>(<#=that_string #>string str)
+		{
+			<#=lower #> result;
+			if(<#=lower #>.TryParse(str, out result))
+				return result;
+			return null;
+		}
+		<#}#>
+
+		/// <summary>
+		/// retrun t == null ?  String.Empty : t.ToString();
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="t"></param>
+		/// <returns></returns>
+		public static string TryToString<T>(this T t) 
+		{
+			return t == null ? null : t.ToString();
+		}
+		
+	}
+	#endregion
 
 }

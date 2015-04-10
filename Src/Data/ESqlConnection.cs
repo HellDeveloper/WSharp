@@ -6,20 +6,18 @@ using System.Threading.Tasks;
 
 namespace WSharp.Data
 {
-    /// <summary>
-    /// Limit
+    /// <summary> SqlServer
     /// </summary>
     public static class ESqlConnection
     {
-        /// <summary>
-        /// 限制查询 必须是SQL Server 2005 以上
+        /// <summary> 限制查询 (ROW_NUMBER）必须是SQL Server 2005 以上
         /// </summary>
         /// <param name="select_sql">查询的SQL语句</param>
         /// <param name="startIndex">开始的索引（从零开始）</param>
         /// <param name="count">拿多少条</param>
         /// <param name="orderBy">排序SQL语句（不需要写 order by 关键字）</param>
         /// <returns>新的查询语句</returns>
-        public static string LimitRowNumber(string select_sql, int startIndex, int count = 10, string orderBy = "ID ASC")
+        public static string LimitRowNumberSql(string select_sql, int startIndex, int count = 10, string orderBy = "ID ASC")
         {
             var i = select_sql.IndexOf(WSharp.Core.Assist.WHITE_SPACE);
             //if (i < 0 || String.IsNullOrWhiteSpace(orderBy))
@@ -28,8 +26,7 @@ namespace WSharp.Data
             return String.Format(format, select_sql.Substring(i, select_sql.Length - i), orderBy, startIndex + 1, startIndex + count + 1);
         }
 
-        /// <summary>
-        /// 限制查询 (TOP NOT IN)最老版本
+        /// <summary> 限制查询 (TOP NOT IN）最老版本
         /// </summary>
         /// <param name="select_sql">查询的SQL语句</param>
         /// <param name="startIndex">开始的索引（从零开始）</param>
@@ -45,8 +42,7 @@ namespace WSharp.Data
             return String.Format(format, select_sql, select_field, startIndex, count);
         }
 
-        /// <summary>
-        /// 限制查询 必须是SQL Server 2005 以上 (ROW_NUMBER)
+        /// <summary> 限制查询 (ROW_NUMBER）必须是SQL Server 2005 以上 
         /// </summary>
         /// <param name="conn"></param>
         /// <param name="select_sql">查询的SQL语句</param>
@@ -56,11 +52,10 @@ namespace WSharp.Data
         /// <returns>新的查询语句</returns>
         public static string LimitSql(this System.Data.SqlClient.SqlConnection conn, string select_sql, int startIndex, int count, string orderBy = "ID ASC")
         {
-            return ESqlConnection.LimitRowNumber(select_sql, startIndex, count, orderBy);
+            return ESqlConnection.LimitRowNumberSql(select_sql, startIndex, count, orderBy);
         }
 
-        /// <summary>
-        /// 限制查询 (TOP NOT IN)最老版本
+        /// <summary> 限制查询 (TOP NOT IN）最老版本
         /// </summary>
         /// <param name="conn"></param>
         /// <param name="select_sql">查询的SQL语句</param>

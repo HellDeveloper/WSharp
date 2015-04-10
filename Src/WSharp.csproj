@@ -43,22 +43,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\ByteConverter.cs">
+    <Compile Include="Core\EConvertType.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>ByteConverter.tt</DependentUpon>
+      <DependentUpon>EConvertType.tt</DependentUpon>
     </Compile>
     <Compile Include="Core\IO.cs" />
     <Compile Include="Core\MongoID.cs" />
     <Compile Include="Core\Security.cs" />
-    <Compile Include="Core\TryTo1.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TryTo.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Data\DbConnectionTemplate.cs" />
+    <Compile Include="Data\EDataTable.cs" />
     <Compile Include="Data\EDbConnection.cs" />
     <Compile Include="Data\ESqlConnection.cs" />
+    <Compile Include="Data\TDbConnection.cs" />
     <Compile Include="Generic\Comparable.cs" />
     <Compile Include="Generic\Comparer.cs" />
     <Compile Include="Generic\ECollection.cs" />
@@ -77,17 +73,13 @@
     <Compile Include="WebForm\EListItemCollection.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Core\TryTo.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>TryTo1.cs</LastGenOutput>
-    </None>
     <None Include="Core\TypeTool.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>TypeTool1.cs</LastGenOutput>
     </None>
-    <None Include="Core\ByteConverter.tt">
+    <None Include="Core\EConvertType.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ByteConverter.cs</LastGenOutput>
+      <LastGenOutput>EConvertType.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>

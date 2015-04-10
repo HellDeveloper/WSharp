@@ -46,9 +46,11 @@ namespace WSharp.Data
             System.Data.IDbCommand cmd = conn.CreateCommand();
             cmd.CommandText = sql;
             int increment = 0;
-            char parameter_name_prefix = CommonSql.ParameterNamePerfix;
-            if (conn is DbConnectionTemplate)
-                parameter_name_prefix = (conn as DbConnectionTemplate).ParameterNamePrefix;
+            char parameter_name_prefix = ' ';
+            if (conn is TDbConnection)
+                parameter_name_prefix = (conn as TDbConnection).ParameterNamePrefix;
+            else
+                parameter_name_prefix = CommonSql.ParameterNamePerfix;
             foreach (var item in args)
             { 
                 IDataParameter param = cmd.CreateParameter();
@@ -325,7 +327,7 @@ namespace WSharp.Data
             DataTable table = new DataTable();
             List<int> list = new List<int>();
             for (int i = 0; i < reader.FieldCount; i++)
-                if (EDbConnection.try_add_column(table, reader.GetName(i)))
+                if (table.Columns.TryAdd(reader.GetName(i)))
                     list.Add(i);
             while (reader.Read())
             {
@@ -338,25 +340,6 @@ namespace WSharp.Data
             if (!reader.IsClosed)
                 reader.Close();
             return table;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="table"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        private static bool try_add_column(DataTable table, string name)
-        {
-            try
-            {
-                table.Columns.Add(name);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
         }
     }
     #endregion
