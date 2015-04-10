@@ -232,6 +232,31 @@ namespace WSharp.Core
 		}
 
 		
+		/// <summary>
+        /// 转换为字节数组
+        /// </summary>
+        /// <param name="value"></param>
+		/// <param name=encoding>编码方式（如果为null，使用System.Text.Encoding.Default）</param>
+        /// <returns>字节数组</returns>
+		public static byte[] GetBytes(this string value, System.Text.Encoding encoding = null)
+		{
+			if (encoding == null)
+				encoding = System.Text.Encoding.Default;
+			return encoding.GetBytes(value);
+		}
+
+		/// <summary>
+        /// 由字节数组中指定的位置转换
+        /// </summary>
+        /// <param name="bytes">字节数组</param>
+        /// <param name="encoding">编码方式（如果为null，使用System.Text.Encoding.Default）</param>
+        /// <returns></returns>
+		public static string ToString(this byte[] bytes, System.Text.Encoding encoding = null)
+		{
+			if (encoding == null)
+				encoding = System.Text.Encoding.Default;
+			return encoding.GetString(bytes);
+		}
 	}
 
 }

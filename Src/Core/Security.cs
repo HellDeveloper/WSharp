@@ -16,7 +16,7 @@ namespace WSharp.Core
         {
             using (T t = new T())
             {
-                byte[] data = t.ComputeHash(Encoding.UTF8.GetBytes(source));
+                byte[] data = t.ComputeHash(source.GetBytes(System.Text.Encoding.UTF8));
                 StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < data.Length; i++)
                     builder.Append(data[i].ToString("x2"));
