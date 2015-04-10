@@ -43,6 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\ByteConverter.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ByteConverter.tt</DependentUpon>
+    </Compile>
     <Compile Include="Core\IO.cs" />
     <Compile Include="Core\MongoID.cs" />
     <Compile Include="Core\Security.cs" />
@@ -51,6 +56,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>TryTo.tt</DependentUpon>
     </Compile>
+    <Compile Include="Data\DbConnectionTemplate.cs" />
     <Compile Include="Data\EDbConnection.cs" />
     <Compile Include="Data\ESqlConnection.cs" />
     <Compile Include="Generic\Comparable.cs" />
@@ -78,6 +84,10 @@
     <None Include="Core\TypeTool.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>TypeTool1.cs</LastGenOutput>
+    </None>
+    <None Include="Core\ByteConverter.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ByteConverter.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>

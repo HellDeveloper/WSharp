@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
@@ -23,6 +24,7 @@ namespace UnitTest
 
             Data data = new Data();
             data.ExecuteSelectSql();
+            
 
             Console.ReadKey(true);
         }

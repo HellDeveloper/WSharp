@@ -1,0 +1,72 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace WSharp.Core
+{
+	/// <summary>
+    /// 
+    /// </summary>
+	public static class ByteConverter
+	{
+		<#
+		string[] types = 
+		{ 
+			"Short", "Int", "Long", 
+			"UShort", "UInt", "ULong", 
+			"Float", "Double",
+			"Char",
+			"Bool"
+		};
+
+		string[] mapping_system_types = 
+		{
+			"Int16", "Int32", "Int64",
+			"UInt16", "UInt32", "UInt64",
+			"Single", "Double",
+			"Char",
+			"Boolean"
+		};
+
+		int index = -1;
+
+		 #>
+		<# foreach(string to in types) {
+			++index;
+			string lower = to.ToLower();
+		 #>
+
+		/// <summary>
+        /// 转换为字节数组
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>字节数组</returns>
+		public static byte[] GetBytes(this <#=lower#> value)
+		{
+			return BitConverter.GetBytes(value);
+		}
+
+		/// <summary>
+        /// 由字节数组中指定的位置转换
+        /// </summary>
+        /// <param name="bytes">字节数组</param>
+        /// <param name="startIndex">开始的位置</param>
+        /// <returns></returns>
+		public static <#=lower#> To<#=to#>(this byte[] bytes, int startIndex = 0)
+		{
+			return BitConverter.To<#=mapping_system_types[index] #>(bytes, startIndex);
+		}
+
+		<# } #>
+
+	}
+
+}
