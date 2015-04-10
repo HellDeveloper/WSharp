@@ -46,10 +46,13 @@ namespace WSharp.Data
             System.Data.IDbCommand cmd = conn.CreateCommand();
             cmd.CommandText = sql;
             int increment = 0;
+            char parameter_name_prefix = CommonSql.ParameterNamePerfix;
+            if (conn is DbConnectionTemplate)
+                parameter_name_prefix = (conn as DbConnectionTemplate).ParameterNamePrefix;
             foreach (var item in args)
             { 
                 IDataParameter param = cmd.CreateParameter();
-                param.ParameterName = CommonSql.ParameterNamePerfix + (increment++).ToString();
+                param.ParameterName = parameter_name_prefix + (increment++).ToString();
                 param.Value = item;
                 cmd.Parameters.Add(param);
             }
