@@ -86,7 +86,7 @@ namespace UnitTest
                 pnl.Controls.Add(CreateTextBox(null, "NULL", "ReadTime")); // 拼接SQL
                 pnl.Controls.Add(CreateTextBox("Category", "问候", "Category"));
                 var args = pnl.CreateParameters<SqlParameter>();
-                args.Add("@SNID", conn.MongoID(), "SNID");
+                args.Add("@SNID", conn.MongoID, "SNID");
                 string build_sql = conn.BuildInsertSql(Factory.LETTER_TABLE, args);
                 string get_sql = conn.GetInsertSql(Factory.LETTER_TABLE, args);
                 conn.ExecuteNonQuery(build_sql, args);
@@ -97,7 +97,7 @@ namespace UnitTest
         [TestMethod]
         public void ExectueDeleteSql()
         {
-            using (SqlConnection conn = new SqlConnection())
+            using (DbSqlServer conn = Factory.CreateConnection())
             {
                 Panel pnl = new Panel();
                 pnl.Controls.Add(CreateTextBox("FromName", "Tom", "FromName LIKE"));

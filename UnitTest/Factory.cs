@@ -15,9 +15,11 @@ namespace UnitTest
     {
         public const string LETTER_TABLE = "Letter";
 
-        public static SqlConnection CreateConnection()
+        public static DbSqlServer CreateConnection()
         {
-            return new SqlConnection().SetConnectionString("UnitTest");
+            var temp = new DbSqlServer();
+            temp.ConnectionString = "UnitTest";
+            return temp;
         }
 
         public static SqlParameter CreateParameter(string parameterName, object value, string sourceColumn, DbType dbtype = DbType.String, ParameterDirection direction = ParameterDirection.Input)

@@ -13,8 +13,7 @@ namespace WSharp.Core
 	public static partial class EConvertType
 	{
 				
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -23,8 +22,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -35,8 +33,7 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -45,8 +42,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -57,8 +53,7 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -67,8 +62,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -79,8 +73,7 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -89,8 +82,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -101,8 +93,7 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -111,8 +102,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -123,8 +113,7 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -133,8 +122,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -145,8 +133,7 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -155,8 +142,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -167,8 +153,7 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -177,8 +162,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -189,8 +173,7 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -199,8 +182,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -211,8 +193,7 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary>  转换为字节数组
         /// </summary>
         /// <param name="value"></param>
         /// <returns>字节数组</returns>
@@ -221,8 +202,7 @@ namespace WSharp.Core
 			return BitConverter.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <param name="startIndex">开始的位置</param>
@@ -233,31 +213,56 @@ namespace WSharp.Core
 		}
 
 		
-		/// <summary>
-        /// 转换为字节数组
+		/// <summary> 转换为字节数组
         /// </summary>
         /// <param name="value"></param>
-		/// <param name="encoding">编码方式（如果为null，使用System.Text.Encoding.Default）</param>
+		/// <param name="encoding">编码方式（如果为null，使用System.Text.Encoding.Unicode）</param>
         /// <returns>字节数组</returns>
 		public static byte[] GetBytes(this string value, System.Text.Encoding encoding = null)
 		{
 			if (encoding == null)
-				encoding = System.Text.Encoding.Default;
+				encoding = System.Text.Encoding.Unicode;
 			return encoding.GetBytes(value);
 		}
 
-		/// <summary>
-        /// 由字节数组中指定的位置转换
+		/// <summary> 由字节数组中指定的位置转换
         /// </summary>
         /// <param name="bytes">字节数组</param>
-        /// <param name="encoding">编码方式（如果为null，使用System.Text.Encoding.Default）</param>
+        /// <param name="encoding">编码方式（如果为null，使用System.Text.Encoding.Unicode）</param>
         /// <returns></returns>
 		public static string ToString(this byte[] bytes, System.Text.Encoding encoding = null)
 		{
 			if (encoding == null)
-				encoding = System.Text.Encoding.Default;
+				encoding = System.Text.Encoding.Unicode;
 			return encoding.GetString(bytes);
 		}
+
+		/// <summary> 将 8 位无符号整数的数组转换为其用 Base64 数字编码的等效字符串表示形式
+        /// </summary>
+        /// <param name="bytes">一个 8 位无符号整数数组</param>
+        /// <param name="option">如果每 76 个字符插入一个分行符，则使用 InsertLineBreaks，如果不插入分行符，则使用 None</param>
+        /// <returns></returns>
+		public static string ToBase64String(this byte[] bytes, Base64FormattingOptions option = Base64FormattingOptions.None)
+		{
+			if (bytes == null)
+				return String.Empty;
+			return Convert.ToBase64String(bytes, option);
+		}
+
+		/// <summary> 将 8 位无符号整数的数组转换为其用 Base64 数字编码的等效字符串表示形式
+        /// </summary>
+        /// <param name="bytes">一个 8 位无符号整数数组</param>
+		/// <param name="offset">bytes 数组中的偏移量</param>
+		/// <param name="length">要转换的 bytes 的元素数</param>
+        /// <param name="option">如果每 76 个字符插入一个分行符，则使用 InsertLineBreaks，如果不插入分行符，则使用 None</param>
+        /// <returns></returns>
+		public static string ToBase64String(this byte[] bytes, int offset, int length, Base64FormattingOptions option = Base64FormattingOptions.None)
+		{
+			if (bytes == null)
+				return String.Empty;
+			return Convert.ToBase64String(bytes, offset, length, option);
+		}
+
 	}
 	#endregion
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,152 @@ namespace WSharp.Data
     /// </summary>
     public class TDbConnection : IDbConnection
     {
+        #region 辅助
+        /// <summary> 
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="args"></param>
+        /// <param name="notinput"></param>
+        private static void add_parameter(IDbCommand cmd, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> notinput)
+        {
+            foreach (var item in args)
+            {
+                if (item == null)
+                    continue;
+                else if (item is IEnumerable<object>)
+                    TDbConnection.add_parameter(cmd, item as IEnumerable<object>, notinput);
+                else if (item is IDataParameter)
+                    TDbConnection.add_parameter(cmd, item as IDataParameter, notinput);
+            }
+        }
+
+        /// <summary> 
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="param"></param>
+        /// <param name="notinput"></param>
+        private static void add_parameter(IDbCommand cmd, IDataParameter param, Dictionary<IDataParameter, IDataParameter> notinput)
+        {
+            if (String.IsNullOrWhiteSpace(param.ParameterName))
+                return;
+            param.Value = param.Value ?? DBNull.Value;
+            IDataParameter arg = EDataParameter.Clone<IDataParameter>(cmd.CreateParameter(), param);
+            if (arg.Direction != ParameterDirection.Input)
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                notinput.Add(param, arg);
+            }
+            cmd.Parameters.Add(arg);
+        }
+
+        /// <summary> 执行 ExecuteNonQuery
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        private static int non_query(System.Data.IDbCommand cmd, object o)
+        {
+            return cmd.ExecuteNonQuery();
+        }
+
+        /// <summary> 执行 ExecuteScalar()
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="o"></param>
+        /// <returns></returns>
+        private static object scalar(System.Data.IDbCommand cmd, object o)
+        {
+            return cmd.ExecuteScalar();
+        }
+
+        /// <summary> 执行 ExecuteReader(behavior)
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="behavior"></param>
+        /// <returns></returns>
+        private static IDataReader reader(System.Data.IDbCommand cmd, CommandBehavior behavior)
+        {
+            return cmd.ExecuteReader(behavior);
+        }
+
+        /// <summary> 清除
+        /// </summary>
+        /// <param name="notinput"></param>
+        private static void clear_not_input(Dictionary<IDataParameter, IDataParameter> notinput)
+        {
+            foreach (var item in notinput)
+                item.Key.Value = item.Value.Value;
+            notinput.Clear();
+        }
+
+        /// <summary> 打开数据库连接
+        /// </summary>
+        /// <param name="conn">关系型数据库连接对象</param>
+        /// <returns>是否已经打开状态</returns>
+        public static bool OpenConnection(IDbConnection conn)
+        {
+            if (conn.State == ConnectionState.Broken)
+                conn.Close();
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+            return conn.State == ConnectionState.Open;
+        }
+
+        /// <summary> 关闭数据库连接
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <returns></returns>
+        public static bool CloseConnection(IDbConnection conn)
+        {
+            if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Open)
+                conn.Close();
+            return conn.State == ConnectionState.Closed;
+        }
+
+        /// <summary> 设置连接字符串
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <param name="str"></param>
+        public static void SetConnectionString(IDbConnection conn, string str)
+        {
+            if (String.IsNullOrWhiteSpace(str))
+                return;// conn;
+            if (str.IndexOf(WSharp.Core.Assist.SEMICOLON) >= 0)
+            {
+                conn.ConnectionString = str;
+                return;// conn;
+            }
+            ConnectionStringSettings conn_str_set = ConfigurationManager.ConnectionStrings[str];
+            //if (conn_str_set != null)
+            conn.ConnectionString = conn_str_set.ConnectionString;
+            //return conn;
+        }
+
+        /// <summary> IDataReader 转 DataTable 
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static DataTable IDataReaderToDataTable(IDataReader reader)
+        {
+            DataTable table = new DataTable();
+            List<int> list = new List<int>();
+            for (int i = 0; i < reader.FieldCount; i++)
+                if (table.Columns.TryAdd(reader.GetName(i)))
+                    list.Add(i);
+            while (reader.Read())
+            {
+                object[] array = new object[list.Count];
+                int index = 0;
+                foreach (var item in list)
+                    array[index++] = reader.GetValue(item);
+                table.Rows.Add(array);
+            }
+            if (!reader.IsClosed)
+                reader.Close();
+            return table;
+        }
+        #endregion
+
         /// <summary> 关系型数据库连接对象
         /// </summary>
         private IDbConnection _db_connection;
@@ -18,11 +165,12 @@ namespace WSharp.Data
         /// <summary> 构造函数
         /// </summary>
         /// <param name="conn">关系型数据库连接对象</param>
-        public TDbConnection(IDbConnection conn)
+        protected TDbConnection(IDbConnection conn)
         {
             this._db_connection = conn;
         }
 
+        #region 实现 IDbConnection 接口
         /// <summary> 开始数据库事务
         /// </summary>
         /// <param name="il">连接的事务锁定行为</param>
@@ -50,9 +198,17 @@ namespace WSharp.Data
 
         /// <summary> 关闭数据库的连接
         /// </summary>
-        public virtual void Close()
+        void IDbConnection.Close()
         {
-            this._db_connection.Close();
+            this.Close();
+        }
+
+        /// <summary> 关闭数据库的连接
+        /// </summary>
+        /// <returns>是否关闭状态</returns>
+        public virtual bool Close()
+        {
+            return TDbConnection.CloseConnection(this._db_connection);
         }
 
         /// <summary> 获取或设置用于打开数据库的字符串
@@ -65,7 +221,7 @@ namespace WSharp.Data
             }
             set
             {
-                this._db_connection.ConnectionString = value;
+                TDbConnection.SetConnectionString(this._db_connection, value);
             }
         }
 
@@ -84,6 +240,17 @@ namespace WSharp.Data
             return this._db_connection.CreateCommand();
         }
 
+        /// <summary> 创建并返回一个与该连接相关联的 Command 对象
+        /// </summary>
+        /// <param name="commandText"></param>
+        /// <returns>一个与该连接相关联的 Command 对象</returns>
+        public virtual IDbCommand CreateCommand(string commandText)
+        {
+            IDbCommand cmd = this._db_connection.CreateCommand();
+            cmd.CommandText = commandText;
+            return cmd;
+        }
+
         /// <summary> 获取当前数据库或连接打开后要使用的数据库的名称
         /// </summary>
         public virtual string Database
@@ -93,9 +260,17 @@ namespace WSharp.Data
 
         /// <summary> 打开一个数据库连接，由 ConnectionString 属性指定
         /// </summary>
-        public virtual void Open()
+        void IDbConnection.Open()
         {
-            this._db_connection.Open();
+            this.Open();
+        }
+
+        /// <summary> 打开一个数据库连接，由 ConnectionString 属性指定
+        /// </summary>
+        /// <returns>是否打开状态</returns>
+        public virtual bool Open()
+        {
+            return TDbConnection.OpenConnection(this._db_connection);
         }
 
         /// <summary> 获取连接的当前状态
@@ -111,6 +286,7 @@ namespace WSharp.Data
         {
             this._db_connection.Dispose();
         }
+        #endregion
 
         /// <summary> 参数名称的前缀
         /// </summary>
@@ -118,6 +294,570 @@ namespace WSharp.Data
         {
             get { return '@'; }
         }
+
+        /// <summary> MongoDB 数据库生成唯一 ID 方式
+        /// </summary>
+        public virtual string MongoID
+        {
+            get { return WSharp.Core.Assist.MongoID; }
+        }
+
+        #region 核心
+        /// <summary> 核心方法，主要针对 ExecuteNonQuery 和 ExecuteScalar
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <typeparam name="Data"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="init_command"></param>
+        /// <param name="fun"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private Result run<Result, Data>(string sql, IEnumerable<object> args, Action<IDbCommand, IEnumerable<object>, Dictionary<IDataParameter, IDataParameter>> init_command, Func<IDbCommand, Data, Result> fun, Data data)
+        {
+            Dictionary<IDataParameter, IDataParameter> notinput = new Dictionary<IDataParameter, IDataParameter>();
+            bool need_close = this._db_connection.State == ConnectionState.Closed;
+            IDbCommand cmd = this.CreateCommand(sql);
+            init_command(cmd, args, notinput);
+            this.Open();
+            Result temp = fun.Invoke(cmd, data);
+            if (need_close && !(temp is IDataReader))
+                this.Close();
+            TDbConnection.clear_not_input(notinput);
+            cmd.Parameters.Clear();
+            return temp;
+        }
+
+        /// <summary> 核心方法，主要针对 ExecuteReader
+        /// </summary>
+        /// <typeparam name="Result">返回结果类型</typeparam>
+        /// <param name="sql">执行文本</param>
+        /// <param name="args"></param>
+        /// <param name="init_command"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        private Result run<Result>(string sql, IEnumerable<object> args, Action<IDbCommand, IEnumerable<object>, Dictionary<IDataParameter, IDataParameter>> init_command, Func<IDataReader, Result> func)
+        {
+            CommandBehavior behavior = this._db_connection.State == ConnectionState.Closed ? CommandBehavior.CloseConnection : CommandBehavior.Default;
+            IDataReader reader = this.run(sql, args, init_command, TDbConnection.reader, behavior);
+            Result temp = func(reader);
+            if (!reader.IsClosed)
+                reader.Close();
+            return temp;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <typeparam name="Data"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="func"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private Result execute<Result, Data>(string sql, IEnumerable<object> args, Func<IDbCommand, Data, Result> func, Data data)
+        {
+            return this.run(sql, args, this.init_execute_command, func, data);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        private Result execute<Result>(string sql, IEnumerable<object> args, Func<IDataReader, Result> func)
+        {
+            return this.run(sql, args, this.init_execute_command, func);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <typeparam name="Data"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="func"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private Result number<Result, Data>(string sql, IEnumerable<object> args, Func<IDbCommand, Data, Result> func, Data data)
+        {
+            return this.run(sql, args, this.init_number_command, func, data);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        private Result number<Result>(string sql, IEnumerable<object> args, Func<IDataReader, Result> func)
+        {
+            return this.run(sql, args, this.init_number_command, func);
+        }
+
+        /// <summary> 
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="args"></param>
+        /// <param name="notinput"></param>
+        /// <returns></returns>
+        private void init_execute_command(IDbCommand cmd, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> notinput)
+        {
+            TDbConnection.add_parameter(cmd, args, notinput);
+            if (cmd.CommandType != CommandType.StoredProcedure && cmd.CommandText.IndexOf(WSharp.Core.Assist.WHITE_SPACE, 0) == -1)
+                cmd.CommandType = CommandType.StoredProcedure;
+        }
+
+        /// <summary> 
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="args"></param>
+        /// <param name="notinput"></param>
+        /// <returns></returns>
+        private void init_number_command(IDbCommand cmd, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> notinput)
+        {
+            int increment = 0;
+            foreach (var item in args)
+            {
+                IDataParameter param = cmd.CreateParameter();
+                param.ParameterName = this.ParameterNamePrefix + (increment++).ToString();
+                param.Value = item;
+                cmd.Parameters.Add(param);
+            }
+        }
+        #endregion
+
+        #region 调用核心 Execute 和 Number
+        /// <summary> 
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public int ExecuteNonQuery(string sql, IEnumerable<IDataParameter> args)
+        {
+            return this.execute(sql, args, TDbConnection.non_query, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public int ExecuteNonQuery(string sql, IEnumerable<IEnumerable<IDataParameter>> args)
+        {
+            return this.execute(sql, args, TDbConnection.non_query, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public int ExecuteNonQuery(string sql, params IDataParameter[] args)
+        {
+            return this.execute(sql, args, TDbConnection.non_query, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public object ExecuteScalar(string sql, IEnumerable<IDataParameter> args)
+        {
+            return this.execute(sql, args, TDbConnection.scalar, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public object ExecuteScalar(string sql, IEnumerable<IEnumerable<IDataParameter>> args)
+        {
+            return this.execute(sql, args, TDbConnection.scalar, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public object ExecuteScalar(string sql, params IDataParameter[] args)
+        {
+            return this.execute(sql, args, TDbConnection.scalar, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="behavior"></param>
+        /// <returns></returns>
+        public IDataReader ExecuteReader(string sql, IEnumerable<IDataParameter> args, CommandBehavior behavior = CommandBehavior.CloseConnection)
+        {
+            return this.execute(sql, args, TDbConnection.reader, behavior);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="behavior"></param>
+        /// <returns></returns>
+        public IDataReader ExecuteReader(string sql, IEnumerable<IEnumerable<IDataParameter>> args, CommandBehavior behavior = CommandBehavior.CloseConnection)
+        {
+            return this.execute(sql, args, TDbConnection.reader, behavior);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="behavior"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public IDataReader ExecuteReader(string sql, CommandBehavior behavior = CommandBehavior.CloseConnection, params IDataParameter[] args)
+        {
+            return this.execute(sql, args, TDbConnection.reader, behavior);
+        }
+
+        /// <summary> 
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public Result ExecuteReader<Result>(string sql, IEnumerable<IDataParameter> args, Func<IDataReader, Result> func)
+        {
+            return this.execute(sql, args, func);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public Result ExecuteReader<Result>(string sql, IEnumerable<IEnumerable<IDataParameter>> args, Func<IDataReader, Result> func)
+        {
+            return this.execute(sql, args, func);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="func"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public Result ExecuteReader<Result>(string sql, Func<IDataReader, Result> func, params IDataParameter[] args)
+        {
+            return this.execute(sql, args, func);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public DataTable ExecuteDataTable(string sql, IEnumerable<IDataParameter> args)
+        {
+            return this.execute(sql, args, TDbConnection.IDataReaderToDataTable);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public DataTable ExecuteDataTable(string sql, IEnumerable<IEnumerable<IDataParameter>> args)
+        {
+            return this.execute(sql, args, TDbConnection.IDataReaderToDataTable);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public DataTable ExecuteDataTable(string sql, params IDataParameter[] args)
+        {
+            return this.execute(sql, args, TDbConnection.IDataReaderToDataTable);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public int NumberNonQuery(string sql, IEnumerable<object> args)
+        {
+            return this.number(sql, args, TDbConnection.non_query, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public int NumberNonQuery(string sql, params object[] args)
+        {
+            return this.number(sql, args, TDbConnection.non_query, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public object NumberScalar(string sql, IEnumerable<object> args)
+        {
+            return this.number(sql, args, TDbConnection.scalar, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public object NumberScalar(string sql, params object[] args)
+        {
+            return this.number(sql, args, TDbConnection.scalar, String.Empty);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="behavior"></param>
+        /// <returns></returns>
+        public IDataReader NumberReader(string sql, IEnumerable<object> args, CommandBehavior behavior = CommandBehavior.CloseConnection)
+        {
+            return this.number(sql, args, TDbConnection.reader, behavior);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="behavior"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public IDataReader NumberReader(string sql, CommandBehavior behavior = CommandBehavior.CloseConnection, params object[] args)
+        {
+            return this.number(sql, args, TDbConnection.reader, behavior);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public Result NumberReader<Result>(string sql, IEnumerable<object> args, Func<IDataReader, Result> func)
+        {
+            return this.number(sql, args, func);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <typeparam name="Result"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="func"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public Result NumberReader<Result>(string sql, Func<IDataReader, Result> func, params object[] args)
+        {
+            return this.number(sql, args, func);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public DataTable NumberDataTable(string sql, IEnumerable<object> args)
+        {
+            return this.number(sql, args, TDbConnection.IDataReaderToDataTable);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public DataTable NumberDataTable(string sql, params object[] args)
+        {
+            return this.number(sql, args, TDbConnection.IDataReaderToDataTable);
+        }
+        #endregion
+
+        #region SQL
+        #region Get SQL
+        /// <summary>
+        /// 条件
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public string GetConditionSql(IDataParameter param)
+        {
+            return CommonSql.ConditionSql(param, CommonSql.FormatSqlValue);
+        }
+
+        /// <summary>
+        /// 条件AND
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public string GetConditionSql(IEnumerable<IDataParameter> args)
+        {
+            return CommonSql.ConditionSql(args, CommonSql.GetConditionSql);
+        }
+
+        /// <summary>
+        /// 条件OR
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public string GetConditionSql(IEnumerable<IEnumerable<IDataParameter>> args)
+        {
+            return CommonSql.ConditionSql(args, CommonSql.GetConditionSql);
+        }
+
+        /// <summary>
+        /// 插入
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="table_name"></param>
+        /// <returns></returns>
+        public string GetInsertSql(string table_name, IEnumerable<IDataParameter> args)
+        {
+            return CommonSql.InsertSql(args, table_name, CommonSql.GetParameterValue);
+        }
+
+        /// <summary>
+        /// 更新
+        /// </summary>
+        /// <param name="sets">设置</param>
+        /// <param name="where">条件</param>
+        /// <param name="table_name">表名</param>
+        /// <returns></returns>
+        public string GetUpdateSql(string table_name, IEnumerable<IDataParameter> sets, IEnumerable<IDataParameter> where)
+        {
+            return CommonSql.UpdateSql(sets, where, table_name, CommonSql.GetSetSql, CommonSql.GetConditionSql);
+        }
+
+        /// <summary>
+        /// 删除
+        /// </summary>
+        /// <param name="where"></param>
+        /// <param name="table_name"></param>
+        /// <returns></returns>
+        public string GetDeleteSql(string table_name, IEnumerable<IDataParameter> where)
+        {
+            return CommonSql.DeleteSql(where, table_name, CommonSql.GetConditionSql);
+        }
+
+        /// <summary>
+        /// 构建查询SQL
+        /// </summary>
+        /// <param name="args">where 条件</param>
+        /// <param name="table_naem">表名</param>
+        /// <param name="fieldname">查询的字段名(如果是String.Empty || null 就是 *)</param>
+        /// <returns>SELECT语句</returns>
+        public string GetSelectSql(string table_naem, IEnumerable<IDataParameter> args, string fieldname = null)
+        {
+            return CommonSql.SelectSql(args, table_naem, CommonSql.GetConditionSql, fieldname);
+        }
+        #endregion
+
+        #region Build SQL
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public string BuildConditionSql(IDataParameter param)
+        {
+            return CommonSql.ConditionSql(param, CommonSql.GetParameterName);
+        }
+
+        /// <summary>
+        /// AND
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public string BuildConditionSql(IEnumerable<IDataParameter> args)
+        {
+            return CommonSql.ConditionSql(args, CommonSql.BuildConditionSql);
+        }
+
+        /// <summary>
+        /// OR
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public string BuildConditionSql(IEnumerable<IEnumerable<IDataParameter>> args)
+        {
+            return CommonSql.ConditionSql(args, CommonSql.BuildConditionSql);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="table_name"></param>
+        /// <returns></returns>
+        public string BuildInsertSql(string table_name, IEnumerable<IDataParameter> args)
+        {
+            return CommonSql.InsertSql(args, table_name, CommonSql.BuildParameterValue);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="table_name"></param>
+        /// <param name="where"></param>
+        /// <returns></returns>
+        public string BuildUpdateSql(string table_name, IEnumerable<IDataParameter> args, IEnumerable<IDataParameter> where)
+        {
+            return CommonSql.UpdateSql(args, where, table_name, CommonSql.BuildSetSql, CommonSql.BuildConditionSql);
+        }
+
+        /// <summary>
+        /// 构建删除的SQL语句
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="table_name">表名</param>
+        /// <returns>SQL语句</returns>
+        public string BuildDeleteSql(string table_name, IEnumerable<IDataParameter> args)
+        {
+            return CommonSql.DeleteSql(args, table_name, CommonSql.BuildConditionSql);
+        }
+
+        /// <summary>
+        /// 构建查询SQL
+        /// </summary>
+        /// <param name="args">where 条件</param>
+        /// <param name="table_naem">表名</param>
+        /// <param name="fieldname">查询的字段名(如果是String.Empty || null 就是 *)</param>
+        /// <returns>SELECT语句</returns>
+        public string BuildSelectSql(string table_naem, IEnumerable<IDataParameter> args, string fieldname = null)
+        {
+            return CommonSql.SelectSql(args, table_naem, CommonSql.BuildConditionSql, fieldname);
+        }
+        #endregion
+        #endregion
 
     }
 

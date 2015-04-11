@@ -69,13 +69,6 @@ namespace UnitTest
         #endregion
 
         [TestMethod]
-        public void SetConnectionString()
-        {
-            SqlConnection conn = new SqlConnection();
-            conn.SetConnectionString("UnitTest");
-        }
-
-        [TestMethod]
         public void ExectueInsertSql()
         {
             using (var conn = Factory.CreateConnection())
@@ -88,7 +81,7 @@ namespace UnitTest
                 args.Add("@SendTime", DateTime.Now, "SendTime =");
                 args.Add(null, "NULL", "ReadTime"); // 拼接SQL
                 args.Add("@Category", "问候", "Category =");
-                args.Add("@SNID", conn.MongoID(), "SNID");
+                args.Add("@SNID", conn.MongoID, "SNID");
                 string insert_sql = conn.BuildInsertSql(Factory.LETTER_TABLE, args);
                 /*
                  INSERT INTO Letter 
@@ -119,7 +112,7 @@ namespace UnitTest
         [TestMethod]
         public void ExectueDeleteSql()
         {
-            using (SqlConnection conn = Factory.CreateConnection())
+            using (DbSqlServer conn = Factory.CreateConnection())
             {
                 var args = Factory.CreateParameters();
                 args.Add(new SqlParameter("@Title", "Hi") { SourceColumn = "Title =" });
@@ -134,7 +127,7 @@ namespace UnitTest
         [TestMethod]
         public void ExecuteSelectSql()
         {
-            using (SqlConnection conn = Factory.CreateConnection())
+            using (DbSqlServer conn = Factory.CreateConnection())
             {
                 List<List<SqlParameter>> list = new List<List<SqlParameter>>() 
                 {
