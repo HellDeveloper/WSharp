@@ -50,8 +50,9 @@ namespace WSharp.WebForm
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="control"></param>
+        /// <param name="paramNamePrefix">参数名称的前缀</param>
         /// <returns></returns>
-        public static T CreateParameter<T>(this Control control) where T : class, IDataParameter, new()
+        public static T CreateParameter<T>(this Control control, char paramNamePrefix = '@') where T : class, IDataParameter, new()
         {
             if (!(control is IAttributeAccessor))
                return null;
@@ -63,7 +64,7 @@ namespace WSharp.WebForm
             if (String.IsNullOrWhiteSpace(control.ID))
                 temp = CreateParameter<T>(null, value, fieldname);
             else
-                temp= CreateParameter<T>(CommonSql.ParameterNamePerfix + control.ID, value, fieldname);
+                temp = CreateParameter<T>(paramNamePrefix + control.ID, value, fieldname);
             DbType<T>(control, temp);
             return temp;
         }
@@ -93,20 +94,20 @@ namespace WSharp.WebForm
             return String.Empty;
         }
 
-        /// <summary>
-        /// 创建Parameter
+        /// <summary> 创建Parameter
         /// </summary>
         /// <typeparam name="T">创建的类型</typeparam>
         /// <param name="control"></param>
+        /// <param name="paramNamePerfix">参数名称的前缀</param>
         /// <param name="func"></param>
         /// <param name="maxLevel"></param>
         /// <returns></returns>
-        public static List<T> CreateParameters<T>(this Control control, Func<Control, T, T> func = null, int maxLevel = 2) where T : class, IDataParameter, new()
+        public static List<T> CreateParameters<T>(this Control control, char paramNamePerfix = '@', Func<Control, T, T> func = null, int maxLevel = 2) where T : class, IDataParameter, new()
         {
             List<T> list = new List<T>();
             if (0 > maxLevel)
                 return list;
-            create_parameters<T>(control, list, 1, maxLevel, func);
+            ControlTool.create_parameters<T>(control, paramNamePerfix, list, 1, maxLevel, func);
             return list;
         }
 
@@ -115,20 +116,21 @@ namespace WSharp.WebForm
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="control"></param>
+        /// <param name="paramNamePerfix">参数名称的前缀</param>
         /// <param name="list"></param>
         /// <param name="currentLevel"></param>
         /// <param name="maxLevel"></param>
         /// <param name="func"></param>
-        private static void create_parameters<T>(Control control, List<T> list, int currentLevel, int maxLevel, Func<Control, T, T> func = null) where T : class, IDataParameter, new()
+        private static void create_parameters<T>(Control control, char paramNamePerfix, List<T> list, int currentLevel, int maxLevel, Func<Control, T, T> func = null) where T : class, IDataParameter, new()
         {
-            T t = CreateParameter<T>(control);
+            T t = ControlTool.CreateParameter<T>(control, paramNamePerfix);
             if (func != null)
                 t = func(control, t);
             if (t != null)
                 list.Add(t);
             if (currentLevel < maxLevel)
                 foreach (Control ctrl in control.Controls)
-                    create_parameters(ctrl, list, currentLevel + 1, maxLevel, func);
+                    create_parameters(ctrl, paramNamePerfix, list, currentLevel + 1, maxLevel, func);
         }
 
         /// <summary>

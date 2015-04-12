@@ -90,49 +90,6 @@ namespace WSharp.Data
             notinput.Clear();
         }
 
-        /// <summary> 打开数据库连接
-        /// </summary>
-        /// <param name="conn">关系型数据库连接对象</param>
-        /// <returns>是否已经打开状态</returns>
-        public static bool OpenConnection(IDbConnection conn)
-        {
-            if (conn.State == ConnectionState.Broken)
-                conn.Close();
-            if (conn.State == ConnectionState.Closed)
-                conn.Open();
-            return conn.State == ConnectionState.Open;
-        }
-
-        /// <summary> 关闭数据库连接
-        /// </summary>
-        /// <param name="conn"></param>
-        /// <returns></returns>
-        public static bool CloseConnection(IDbConnection conn)
-        {
-            if (conn.State == ConnectionState.Broken || conn.State == ConnectionState.Open)
-                conn.Close();
-            return conn.State == ConnectionState.Closed;
-        }
-
-        /// <summary> 设置连接字符串
-        /// </summary>
-        /// <param name="conn"></param>
-        /// <param name="str"></param>
-        public static void SetConnectionString(IDbConnection conn, string str)
-        {
-            if (String.IsNullOrWhiteSpace(str))
-                return;// conn;
-            if (str.IndexOf(WSharp.Core.Assist.SEMICOLON) >= 0)
-            {
-                conn.ConnectionString = str;
-                return;// conn;
-            }
-            ConnectionStringSettings conn_str_set = ConfigurationManager.ConnectionStrings[str];
-            //if (conn_str_set != null)
-            conn.ConnectionString = conn_str_set.ConnectionString;
-            //return conn;
-        }
-
         /// <summary> IDataReader 转 DataTable 
         /// </summary>
         /// <param name="reader"></param>
@@ -208,7 +165,9 @@ namespace WSharp.Data
         /// <returns>是否关闭状态</returns>
         public virtual bool Close()
         {
-            return TDbConnection.CloseConnection(this._db_connection);
+            if (this._db_connection.State == ConnectionState.Broken || this._db_connection.State == ConnectionState.Open)
+                this._db_connection.Close();
+            return this._db_connection.State == ConnectionState.Closed;
         }
 
         /// <summary> 获取或设置用于打开数据库的字符串
@@ -221,7 +180,17 @@ namespace WSharp.Data
             }
             set
             {
-                TDbConnection.SetConnectionString(this._db_connection, value);
+                if (String.IsNullOrWhiteSpace(value))
+                    return;
+                if (value.IndexOf(WSharp.Core.Assist.SEMICOLON) >= 0) // 如果有分号直接赋值
+                {
+                    this._db_connection.ConnectionString = value;
+                }
+                else // 从配置文件 value是Name
+                {
+                    ConnectionStringSettings conn_str_set = ConfigurationManager.ConnectionStrings[value];
+                    this._db_connection.ConnectionString = conn_str_set.ConnectionString;
+                }
             }
         }
 
@@ -270,7 +239,11 @@ namespace WSharp.Data
         /// <returns>是否打开状态</returns>
         public virtual bool Open()
         {
-            return TDbConnection.OpenConnection(this._db_connection);
+            if (this._db_connection.State == ConnectionState.Broken)
+                this._db_connection.Close();
+            if (this._db_connection.State == ConnectionState.Closed)
+                this._db_connection.Open();
+            return this._db_connection.State == ConnectionState.Open;
         }
 
         /// <summary> 获取连接的当前状态
