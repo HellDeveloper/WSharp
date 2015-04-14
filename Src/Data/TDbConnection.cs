@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WSharp.Core;
 
 namespace WSharp.Data
 {
@@ -22,16 +23,16 @@ namespace WSharp.Data
         /// <param name="cmd"></param>
         /// <param name="args"></param>
         /// <param name="notinput"></param>
-        private static void add_parameter(IDbCommand cmd, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> notinput)
+        private static void add_parameter(IDbCommand cmd, Type param_type, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> notinput)
         {
             foreach (var item in args)
             {
                 if (item == null)
                     continue;
                 else if (item is IEnumerable<object>)
-                    TDbConnection.add_parameter(cmd, item as IEnumerable<object>, notinput);
+                    TDbConnection.add_parameter(cmd, param_type, item as IEnumerable<object>, notinput);
                 else if (item is IDataParameter)
-                    TDbConnection.add_parameter(cmd, item as IDataParameter, notinput);
+                    TDbConnection.add_parameter(cmd, param_type, item as IDataParameter, notinput);
             }
         }
 
@@ -40,17 +41,26 @@ namespace WSharp.Data
         /// <param name="cmd"></param>
         /// <param name="param"></param>
         /// <param name="notinput"></param>
-        private static void add_parameter(IDbCommand cmd, IDataParameter param, Dictionary<IDataParameter, IDataParameter> notinput)
+        private static void add_parameter(IDbCommand cmd, Type param_type, IDataParameter param, Dictionary<IDataParameter, IDataParameter> notinput)
         {
             if (String.IsNullOrWhiteSpace(param.ParameterName))
                 return;
             param.Value = param.Value ?? DBNull.Value;
-            IDataParameter arg = EDataParameter.Clone<IDataParameter>(cmd.CreateParameter(), param);
-            if (arg.Direction != ParameterDirection.Input)
+            IDataParameter arg = param;
+            if (!param_type.IsInstanceOfType(arg))
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                notinput.Add(param, arg);
+                arg = EDataParameter.Clone<IDataParameter>(cmd.CreateParameter(), param);
+                if (arg.Direction != ParameterDirection.Input)
+                    notinput.Add(param, arg);
             }
+            if (arg.SourceVersion == DataRowVersion.Original)
+            {
+                if (arg.GetComparer().EndsWith(" like", StringComparison.OrdinalIgnoreCase))
+                    arg.Value = String.Format("%{0}%", arg.Value.TryToString());
+                arg.SourceVersion = DataRowVersion.Current;
+            }
+            if (arg.Direction != ParameterDirection.Input)
+                cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add(arg);
         }
 
@@ -385,7 +395,9 @@ namespace WSharp.Data
         /// <returns></returns>
         private void init_execute_command(IDbCommand cmd, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> notinput)
         {
-            TDbConnection.add_parameter(cmd, args, notinput);
+            var param_type = cmd.CreateParameter().GetType();
+            cmd.Parameters.Clear();
+            TDbConnection.add_parameter(cmd, param_type, args, notinput);
             if (cmd.CommandType != CommandType.StoredProcedure && cmd.CommandText.IndexOf(WSharp.Core.Assist.WHITE_SPACE, 0) == -1)
                 cmd.CommandType = CommandType.StoredProcedure;
         }

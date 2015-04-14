@@ -12,10 +12,7 @@ namespace WSharp.Generic
     /// </summary>
     public static partial class EEnumerable
     {
-        #region OrderBy
-
-        /// <summary>
-        /// 升序排序 IComparable接口 CompareTo
+        /// <summary> 升序排序 IComparable接口 CompareTo
         /// </summary>
         /// <typeparam name="TSource">实现IComparable接口</typeparam>
         /// <param name="source">排序的数据源</param>
@@ -25,8 +22,7 @@ namespace WSharp.Generic
             return source.OrderBy(Assist.ReturnParameter, new Comparable<TSource>());
         }
 
-        /// <summary>
-        /// 升序排序
+        /// <summary> 升序排序
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <param name="source">排序的数据源</param>
@@ -37,8 +33,7 @@ namespace WSharp.Generic
             return source.OrderBy(Assist.ReturnParameter, new Comparer<TSource>(callback));
         }
 
-        /// <summary>
-        /// 升序排序
+        /// <summary> 升序排序
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <param name="source">排序的数据源</param>
@@ -49,8 +44,7 @@ namespace WSharp.Generic
             return source.OrderBy(Assist.ReturnParameter, comparer);
         }
 
-        /// <summary>
-        /// 升序排序
+        /// <summary> 升序排序
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <typeparam name="TKey"></typeparam>
@@ -63,12 +57,8 @@ namespace WSharp.Generic
             return source.OrderBy(keySelector, new Comparer<TKey>(callback));
         }
         
-        #endregion
 
-        #region OrderByDescending
-
-        /// <summary>
-        /// 降序排序 IComparable接口 CompareTo
+        /// <summary> 降序排序 IComparable接口 CompareTo
         /// </summary>
         /// <typeparam name="TSource">实现IComparable接口</typeparam>
         /// <param name="source">排序的数据源</param>
@@ -78,8 +68,7 @@ namespace WSharp.Generic
             return source.OrderByDescending(Assist.ReturnParameter, new Comparable<TSource>());
         }
 
-        /// <summary>
-        /// 降序排序
+        /// <summary> 降序排序
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <param name="source">排序的数据源</param>
@@ -90,8 +79,7 @@ namespace WSharp.Generic
             return source.OrderByDescending(Assist.ReturnParameter, new Comparer<TSource>(callback));
         }
 
-        /// <summary>
-        /// 降序排序
+        /// <summary> 降序排序
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <param name="source">排序的数据源</param>
@@ -102,8 +90,7 @@ namespace WSharp.Generic
             return source.OrderByDescending(Assist.ReturnParameter, comparer);
         }
 
-        /// <summary>
-        /// 降序排序
+        /// <summary> 降序排序
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <typeparam name="TKey"></typeparam>
@@ -116,9 +103,6 @@ namespace WSharp.Generic
             return source.OrderByDescending(keySelector, new Comparer<TKey>(callback));
         }
 
-        #endregion
-
-        #region ToStringBuilder
         /// <summary>
         /// 
         /// </summary>
@@ -189,7 +173,6 @@ namespace WSharp.Generic
             return new Tuple<StringBuilder, StringBuilder>(tuple.Item1, tuple.Item2);
         }
 
-        #endregion
 
     }
 }

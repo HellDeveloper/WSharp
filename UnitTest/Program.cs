@@ -19,15 +19,26 @@ namespace UnitTest
         public object Value { get; set; }
     }
 
+    public static class Ex
+    {
+        public static void A(this object o)
+        { Console.WriteLine("object"); }
+
+        public static void A<T>(this T t) where T : struct
+        { Console.WriteLine("T"); }
+    }
+
     class Program
     {
         public static void Main(string[] args)
         {
-            byte[] bytes = new byte[0];
-            NameValueCollection nvc = new NameValueCollection();
-            nvc.Add("Value", "");
-            IDataParameter param = new SqlParameter();
-            
+            int i = 0;
+            i.A();
+            //byte[] bytes = new byte[0];
+            //NameValueCollection nvc = new NameValueCollection();
+            //nvc.Add("Value", "");
+            //IDataParameter param = new SqlParameter();
+            //param.GetType().IsInstanceOfType
             //encodings();
             Console.ReadKey(true);
         }

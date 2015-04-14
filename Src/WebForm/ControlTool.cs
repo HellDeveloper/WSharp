@@ -79,7 +79,7 @@ namespace WSharp.WebForm
         /// <param name="paramNamePrefix"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        private static IDataParameter create_parameter(Control control, char paramNamePrefix, Func<IDataParameter> func)
+        private static T create_parameter<T>(Control control, char paramNamePrefix, Func<T> func) where T : class, IDataParameter
         {
             if (!(control is IAttributeAccessor))
                 return null;
@@ -87,49 +87,26 @@ namespace WSharp.WebForm
             if (String.IsNullOrWhiteSpace(fieldname))
                 return null;
             object value = GetValue(control);
-            IDataParameter temp = func();
+            var temp = func();
             initialize_parameter(temp, paramNamePrefix + control.ID, value, fieldname);
             DbType(control, temp);
             return temp;
         }
-
-        /// <summary> 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="control"></param>
-        /// <param name="paramNamePrefix">参数名称的前缀</param>
-        /// <returns></returns>
-        public static T CreateParameter<T>(this Control control, char paramNamePrefix = '@') where T : class, IDataParameter, new()
-        {
-            return create_parameter(control, paramNamePrefix, Assist.CreateParameter<T>) as T;
-        }
-
-        /// <summary> 
-        /// </summary>
-        /// <param name="control"></param>
-        /// <param name="paramNamePrefix"></param>
-        /// <returns></returns>
-        public static DataParameter CreateDataParameter(this Control control, char paramNamePrefix = '@')
-        {
-            return create_parameter(control, paramNamePrefix, Assist.CreateParameter<DataParameter>) as DataParameter;
-        }
-
-
 
         /// <summary> 创建Parameter
         /// </summary>
         /// <typeparam name="T">创建的类型</typeparam>
         /// <param name="control"></param>
         /// <param name="paramNamePerfix">参数名称的前缀</param>
-        /// <param name="func">回调</param>
+        /// <param name="check_param">检查参数是否需要</param>
         /// <param name="maxLevel">最大深度</param>
         /// <returns></returns>
-        public static List<T> CreateParameters<T>(this Control control, char paramNamePerfix = '@', Func<Control, T, T> func = null, int maxLevel = 2) where T : class, IDataParameter, new()
+        public static List<T> CreateParameters<T>(this Control control, char paramNamePerfix = '@', Func<Control, T, T> check_param = null, int maxLevel = 2) where T : class, IDataParameter, new()
         {
             List<T> list = new List<T>();
             if (0 > maxLevel)
                 return list;
-            ControlTool.create_parameters<T>(control, paramNamePerfix, list, 1, maxLevel, func);
+            ControlTool.create_parameters<T>(control, paramNamePerfix, list, 1, maxLevel, Assist.CreateParameter<T>, check_param);
             return list;
         }
 
@@ -154,17 +131,18 @@ namespace WSharp.WebForm
         /// <param name="list"></param>
         /// <param name="currentLevel"></param>
         /// <param name="maxLevel"></param>
-        /// <param name="func"></param>
-        private static void create_parameters<T>(Control control, char paramNamePerfix, List<T> list, int currentLevel, int maxLevel, Func<Control, T, T> func = null) where T : class, IDataParameter, new()
+        /// <param name="create_param"></param>
+        /// <param name="check_param"></param>
+        private static void create_parameters<T>(Control control, char paramNamePerfix, List<T> list, int currentLevel, int maxLevel, Func<T> create_param, Func<Control, T, T> check_param = null) where T : class, IDataParameter, new()
         {
-            T t = ControlTool.CreateParameter<T>(control, paramNamePerfix);
-            if (func != null)
-                t = func(control, t);
+            T t = ControlTool.create_parameter<T>(control, paramNamePerfix, create_param);
+            if (check_param != null)
+                t = check_param(control, t);
             if (t != null)
                 list.Add(t);
             if (currentLevel < maxLevel)
                 foreach (Control ctrl in control.Controls)
-                    create_parameters(ctrl, paramNamePerfix, list, currentLevel + 1, maxLevel, func);
+                    create_parameters(ctrl, paramNamePerfix, list, currentLevel + 1, maxLevel, create_param, check_param);
         }
 
         /// <summary>
