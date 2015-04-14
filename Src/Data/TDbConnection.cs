@@ -106,7 +106,7 @@ namespace WSharp.Data
                 object[] array = new object[list.Count];
                 int index = 0;
                 foreach (var item in list)
-                    array[index++] = reader.GetValue(item);
+                    array[index++] = reader.GetValue(item) ?? DBNull.Value;
                 table.Rows.Add(array);
             }
             if (!reader.IsClosed)
@@ -274,6 +274,8 @@ namespace WSharp.Data
         {
             get { return WSharp.Core.Assist.MongoID; }
         }
+
+        
 
         #region 核心
         /// <summary> 核心方法，主要针对 ExecuteNonQuery 和 ExecuteScalar

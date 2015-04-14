@@ -69,7 +69,13 @@ namespace WSharp.WebForm
             return temp;
         }
 
-        private static void DbType<T>(Control control, T temp) where T : class, IDataParameter, new()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="control"></param>
+        /// <param name="temp"></param>
+        private static void DbType<T>(Control control, T temp) where T : class, IDataParameter
         {
             string dbtype = (control as IAttributeAccessor).GetAttribute(DATA_DB_TYPE);
             if (String.Compare(dbtype, "date", true) == 0 && temp.GetComparer() == "<=")
