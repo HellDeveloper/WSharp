@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -25,7 +26,8 @@ namespace UnitTest
             byte[] bytes = new byte[0];
             NameValueCollection nvc = new NameValueCollection();
             nvc.Add("Value", "");
-          
+            IDataParameter param = new SqlParameter();
+            
             //encodings();
             Console.ReadKey(true);
         }

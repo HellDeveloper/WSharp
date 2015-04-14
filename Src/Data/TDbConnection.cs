@@ -10,9 +10,13 @@ namespace WSharp.Data
 {
     /// <summary> 关系型数据库连接对象
     /// </summary>
-    public class TDbConnection : IDbConnection
+    public partial class TDbConnection : IDbConnection
     {
-        #region 辅助
+        /*
+         *  静态成员
+         *  辅助作用
+         */
+
         /// <summary> 
         /// </summary>
         /// <param name="cmd"></param>
@@ -113,8 +117,12 @@ namespace WSharp.Data
                 reader.Close();
             return table;
         }
-        #endregion
+    }
 
+    /// <summary> 关系型数据库连接对象
+    /// </summary>
+    public partial class TDbConnection : IDbConnection
+    {
         /// <summary> 关系型数据库连接对象
         /// </summary>
         private IDbConnection _db_connection;
@@ -127,7 +135,12 @@ namespace WSharp.Data
             this._db_connection = conn;
         }
 
-        #region 实现 IDbConnection 接口
+    }
+
+    /// <summary> 关系型数据库连接对象
+    /// </summary>
+    public partial class TDbConnection : IDbConnection
+    {
         /// <summary> 开始数据库事务
         /// </summary>
         /// <param name="il">连接的事务锁定行为</param>
@@ -259,25 +272,12 @@ namespace WSharp.Data
         {
             this._db_connection.Dispose();
         }
-        #endregion
+    }
 
-        /// <summary> 参数名称的前缀
-        /// </summary>
-        public virtual char ParameterNamePrefix
-        {
-            get { return '@'; }
-        }
-
-        /// <summary> MongoDB 数据库生成唯一 ID 方式
-        /// </summary>
-        public virtual string MongoID
-        {
-            get { return WSharp.Core.Assist.MongoID; }
-        }
-
-        
-
-        #region 核心
+    /// <summary> 关系型数据库连接对象
+    /// </summary>
+    public partial class TDbConnection : IDbConnection
+    {
         /// <summary> 核心方法，主要针对 ExecuteNonQuery 和 ExecuteScalar
         /// </summary>
         /// <typeparam name="Result"></typeparam>
@@ -407,9 +407,12 @@ namespace WSharp.Data
                 cmd.Parameters.Add(param);
             }
         }
-        #endregion
+    }
 
-        #region 调用核心 Execute 和 Number
+    /// <summary> 关系型数据库连接对象
+    /// </summary>
+    public partial class TDbConnection : IDbConnection
+    {
         /// <summary> 
         /// </summary>
         /// <param name="sql"></param>
@@ -674,10 +677,12 @@ namespace WSharp.Data
         {
             return this.number(sql, args, TDbConnection.IDataReaderToDataTable);
         }
-        #endregion
+    }
 
-        #region SQL
-        #region Get SQL
+    /// <summary> 关系型数据库连接对象
+    /// </summary>
+    public partial class TDbConnection : IDbConnection
+    {
         /// <summary>
         /// 条件
         /// </summary>
@@ -753,9 +758,7 @@ namespace WSharp.Data
         {
             return CommonSql.SelectSql(args, table_naem, CommonSql.GetConditionSql, fieldname);
         }
-        #endregion
 
-        #region Build SQL
         /// <summary>
         /// 
         /// </summary>
@@ -824,16 +827,40 @@ namespace WSharp.Data
         /// 构建查询SQL
         /// </summary>
         /// <param name="args">where 条件</param>
-        /// <param name="table_naem">表名</param>
+        /// <param name="table_name">表名</param>
         /// <param name="fieldname">查询的字段名(如果是String.Empty || null 就是 *)</param>
         /// <returns>SELECT语句</returns>
-        public string BuildSelectSql(string table_naem, IEnumerable<IDataParameter> args, string fieldname = null)
+        public string BuildSelectSql(string table_name, IEnumerable<IDataParameter> args, string fieldname = null)
         {
-            return CommonSql.SelectSql(args, table_naem, CommonSql.BuildConditionSql, fieldname);
+            return CommonSql.SelectSql(args, table_name, CommonSql.BuildConditionSql, fieldname);
         }
-        #endregion
-        #endregion
+    }
 
+    /// <summary> 关系型数据库连接对象
+    /// </summary>
+    public partial class TDbConnection : IDbConnection
+    {
+        /// <summary> 参数名称的前缀
+        /// </summary>
+        public virtual char ParameterNamePrefix
+        {
+            get { return '@'; }
+        }
+
+        /// <summary> MongoDB 数据库生成唯一 ID 方式
+        /// </summary>
+        public virtual string MongoID
+        {
+            get { return WSharp.Core.Assist.MongoID; }
+        }
+
+        /// <summary> 创建参数
+        /// </summary>
+        /// <returns></returns>
+        public DataParameter CreateDataParameter()
+        {
+            return new DataParameter();
+        }
     }
 
     /// <summary> 关系型数据库连接对象
@@ -842,7 +869,8 @@ namespace WSharp.Data
     {
         /// <summary> 构造函数
         /// </summary>
-        public TDbConnection() : base(new T())
+        public TDbConnection()
+            : base(new T())
         {
 
         }

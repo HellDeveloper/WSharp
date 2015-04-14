@@ -52,6 +52,7 @@
     <Compile Include="Core\IO.cs" />
     <Compile Include="Core\MongoID.cs" />
     <Compile Include="Core\Security.cs" />
+    <Compile Include="Data\DataParameter.cs" />
     <Compile Include="Data\EDataTable.cs" />
     <Compile Include="Data\DbSqlServer.cs" />
     <Compile Include="Data\TDbConnection.cs" />

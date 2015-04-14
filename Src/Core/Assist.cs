@@ -65,6 +65,15 @@ namespace WSharp.Core
             return t;
         }
 
+        /// <summary> 创建泛型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T CreateParameter<T>() where T : new()
+        {
+            return new T();
+        }
+
         /// <summary> 创建数组
         /// </summary>
         /// <typeparam name="T"></typeparam>

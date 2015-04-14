@@ -27,46 +27,20 @@ namespace WSharp.WebForm
         /// </summary>
         public const string DATA_DB_TYPE = "data-dbtype";
 
-        /// <summary>
-        /// 
+        /// <summary> 初始化参数
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <param name="param"></param>
         /// <param name="parameterName"></param>
         /// <param name="value"></param>
         /// <param name="sourceColumn"></param>
         /// <returns></returns>
-        public static T CreateParameter<T>(string parameterName, object value, string sourceColumn) where T : class, IDataParameter, new()
+        private static IDataParameter initialize_parameter(IDataParameter param, string parameterName, object value, string sourceColumn)
         {
-            T t = new T();
-            t.ParameterName = parameterName;
-            t.SourceVersion = DataRowVersion.Original;
-            t.SourceColumn = sourceColumn.Trim();
-            t.Value = value;
-            return t;
-        }
-
-        /// <summary>
-        /// String.IsNullOrWhiteSpace(control.ID) parameterName = null;
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="control"></param>
-        /// <param name="paramNamePrefix">参数名称的前缀</param>
-        /// <returns></returns>
-        public static T CreateParameter<T>(this Control control, char paramNamePrefix = '@') where T : class, IDataParameter, new()
-        {
-            if (!(control is IAttributeAccessor))
-               return null;
-            string fieldname = ControlTool.GetDataFieldName(control);
-            if (String.IsNullOrWhiteSpace(fieldname))
-                return null;
-            object value = GetValue(control);
-            T temp = null;
-            if (String.IsNullOrWhiteSpace(control.ID))
-                temp = CreateParameter<T>(null, value, fieldname);
-            else
-                temp = CreateParameter<T>(paramNamePrefix + control.ID, value, fieldname);
-            DbType<T>(control, temp);
-            return temp;
+            param.ParameterName = parameterName;
+            param.SourceVersion = DataRowVersion.Original;
+            param.SourceColumn = sourceColumn.Trim();
+            param.Value = value;
+            return param;
         }
 
         /// <summary>
@@ -82,12 +56,11 @@ namespace WSharp.WebForm
                 temp.Value += " 23:59:59";
         }
 
-        /// <summary>
-        /// 获取值
+        /// <summary> 获取值
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
-        private static object GetValue(Control control)
+        private static object GetValue(this Control control)
         {
             if (control is ITextControl)
                 return (control as ITextControl).Text;
@@ -100,13 +73,56 @@ namespace WSharp.WebForm
             return String.Empty;
         }
 
+        /// <summary> 
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="paramNamePrefix"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        private static IDataParameter create_parameter(Control control, char paramNamePrefix, Func<IDataParameter> func)
+        {
+            if (!(control is IAttributeAccessor))
+                return null;
+            string fieldname = ControlTool.GetDataFieldName(control);
+            if (String.IsNullOrWhiteSpace(fieldname))
+                return null;
+            object value = GetValue(control);
+            IDataParameter temp = func();
+            initialize_parameter(temp, paramNamePrefix + control.ID, value, fieldname);
+            DbType(control, temp);
+            return temp;
+        }
+
+        /// <summary> 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="control"></param>
+        /// <param name="paramNamePrefix">参数名称的前缀</param>
+        /// <returns></returns>
+        public static T CreateParameter<T>(this Control control, char paramNamePrefix = '@') where T : class, IDataParameter, new()
+        {
+            return create_parameter(control, paramNamePrefix, Assist.CreateParameter<T>) as T;
+        }
+
+        /// <summary> 
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="paramNamePrefix"></param>
+        /// <returns></returns>
+        public static DataParameter CreateDataParameter(this Control control, char paramNamePrefix = '@')
+        {
+            return create_parameter(control, paramNamePrefix, Assist.CreateParameter<DataParameter>) as DataParameter;
+        }
+
+
+
         /// <summary> 创建Parameter
         /// </summary>
         /// <typeparam name="T">创建的类型</typeparam>
         /// <param name="control"></param>
         /// <param name="paramNamePerfix">参数名称的前缀</param>
-        /// <param name="func"></param>
-        /// <param name="maxLevel"></param>
+        /// <param name="func">回调</param>
+        /// <param name="maxLevel">最大深度</param>
         /// <returns></returns>
         public static List<T> CreateParameters<T>(this Control control, char paramNamePerfix = '@', Func<Control, T, T> func = null, int maxLevel = 2) where T : class, IDataParameter, new()
         {
@@ -115,6 +131,18 @@ namespace WSharp.WebForm
                 return list;
             ControlTool.create_parameters<T>(control, paramNamePerfix, list, 1, maxLevel, func);
             return list;
+        }
+
+        /// <summary> 
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="paramNamePerfix"></param>
+        /// <param name="func"></param>
+        /// <param name="maxLevel"></param>
+        /// <returns></returns>
+        public static List<DataParameter> CreateDataParameters(this Control control, char paramNamePerfix = '@', Func<Control, DataParameter, DataParameter> func = null, int maxLevel = 2) 
+        {
+            return CreateParameters(control, paramNamePerfix, func, maxLevel);
         }
 
         /// <summary>
@@ -151,8 +179,7 @@ namespace WSharp.WebForm
             return (control as IAttributeAccessor).GetAttribute(DATA_FIELDNAME);
         }
 
-        /// <summary>
-        /// 
+        /// <summary> 获取字段名
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
@@ -180,7 +207,7 @@ namespace WSharp.WebForm
         /// <summary> 填充数据（包括当前控件）
         /// </summary>
         /// <param name="control"></param>
-        /// <param name="row"></param>
+        /// <param name="row">数据行</param>
         /// <param name="after_action">回调函数</param>
         /// <param name="maxLevel">递归的深度</param>
         public static void FillData(this Control control, DataRow row, Action<Control, string, object> after_action = null, int maxLevel = 3)
@@ -188,6 +215,19 @@ namespace WSharp.WebForm
             if (row == null || row.Table == null)
                 return;
             fill_data(control, row, after_action, 1, maxLevel);
+        }
+
+        /// <summary> 填充数据（包括当前控件）
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="table">数据表</param>
+        /// <param name="rowIndex">行索引</param>
+        /// <param name="after_action">回调函数</param>
+        /// <param name="maxLevel">递归的深度</param>
+        public static void FillData(this Control control, DataTable table, int rowIndex = 0, Action<Control, string, object> after_action = null, int maxLevel = 3)
+        {
+            if (table != null && table.Rows.Count > rowIndex)
+                fill_data(control, table.Rows[rowIndex], after_action, 1, maxLevel);
         }
 
         /// <summary> 填充数据（包括当前控件）
@@ -215,8 +255,7 @@ namespace WSharp.WebForm
                     fill_data(ctrl, row, after_action, currentLevel + 1, maxLevel);
         }
 
-        /// <summary>
-        /// 
+        /// <summary> 
         /// </summary>
         /// <param name="control"></param>
         /// <param name="name"></param>
@@ -235,8 +274,6 @@ namespace WSharp.WebForm
             else if (control is System.Web.UI.IAttributeAccessor)
                 (control as System.Web.UI.IAttributeAccessor).SetAttribute("value", value.ToString());
         }
-
-
 
     }
 }

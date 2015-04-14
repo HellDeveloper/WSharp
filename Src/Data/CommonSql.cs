@@ -14,22 +14,11 @@ namespace WSharp.Data
     /// </summary>
     public static class CommonSql
     {
-        #region Help
+
         /// <summary>
         /// 默认的参数名的前缀
         /// </summary>
         public const char DEFAULT_PARAMETER_NAME_PERFIX = '@';
-
-        /// <summary>
-        /// 参数名的前缀
-        /// </summary>
-        public static char ParameterNamePerfix
-        {
-            get
-            {
-                return System.Configuration.ConfigurationManager.AppSettings["ParameterNamePerfix"].TryToChar() ?? CommonSql.DEFAULT_PARAMETER_NAME_PERFIX;
-            }
-        }
 
         /// <summary>获取字段名</summary>
         /// <param name="param"></param>
@@ -41,7 +30,8 @@ namespace WSharp.Data
             return Assist.GetBeforeFirstWhiteSpace(param.SourceColumn);
         }
 
-        /// <summary>格式化Sql的值</summary>
+        /// <summary>格式化Sql的值
+        /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
         public static string FormatSqlValue<T>(this T param) where T : IDataParameter
@@ -129,7 +119,7 @@ namespace WSharp.Data
                 return -1;
             return 0;
         }
-        #endregion
+
 
         /// <summary>
         /// 
