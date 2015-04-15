@@ -21,6 +21,7 @@ namespace UnitTest
 
     public static class Ex
     {
+        [Obsolete("", true)]
         public static void A(this object o)
         { Console.WriteLine("object"); }
 
@@ -32,21 +33,19 @@ namespace UnitTest
     {
         public static void Main(string[] args)
         {
-            int i = 0;
-            i.A();
+            int i = 100;
             //byte[] bytes = new byte[0]; 
             //NameValueCollection nvc = new NameValueCollection();
             //nvc.Add("Value", "");
             //IDataParameter param = new SqlParameter();
             //param.GetType().IsInstanceOfType
             //encodings();
+            int? j = null;
+            string s = null;
 
-            Console.WriteLine(Object.Equals(i, null));
-
-
-            Console.WriteLine(Object.Equals("", null));
-
-            Console.WriteLine(Object.Equals(null, null));
+            Console.WriteLine(i + j);
+            Console.WriteLine(i.ToString() + s);
+            //Console.WriteLine(s.ToString());
 
             Console.ReadKey(true);
         }
