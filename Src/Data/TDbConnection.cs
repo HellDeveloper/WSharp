@@ -22,17 +22,18 @@ namespace WSharp.Data
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="args"></param>
-        /// <param name="notinput"></param>
-        private static void add_parameter(IDbCommand cmd, Type param_type, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> notinput)
+        /// <param name="param_type">Parameter 的实例类型</param>
+        /// <param name="neq_inputs">parameter的方向不等于 ParameterDirection.Input</param>
+        private static void add_parameter(IDbCommand cmd, Type param_type, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> neq_inputs)
         {
             foreach (var item in args)
             {
                 if (item == null)
                     continue;
                 else if (item is IEnumerable<object>)
-                    TDbConnection.add_parameter(cmd, param_type, item as IEnumerable<object>, notinput);
+                    TDbConnection.add_parameter(cmd, param_type, item as IEnumerable<object>, neq_inputs);
                 else if (item is IDataParameter)
-                    TDbConnection.add_parameter(cmd, param_type, item as IDataParameter, notinput);
+                    TDbConnection.add_parameter(cmd, param_type, item as IDataParameter, neq_inputs);
             }
         }
 
@@ -40,8 +41,9 @@ namespace WSharp.Data
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="param"></param>
-        /// <param name="notinput"></param>
-        private static void add_parameter(IDbCommand cmd, Type param_type, IDataParameter param, Dictionary<IDataParameter, IDataParameter> notinput)
+        /// <param name="param_type">Parameter 的实例类型</param>
+        /// <param name="neq_inputs">parameter的方向不等于 ParameterDirection.Input</param>
+        private static void add_parameter(IDbCommand cmd, Type param_type, IDataParameter param, Dictionary<IDataParameter, IDataParameter> neq_inputs)
         {
             if (String.IsNullOrWhiteSpace(param.ParameterName))
                 return;
@@ -51,7 +53,7 @@ namespace WSharp.Data
             {
                 arg = EDataParameter.Clone<IDataParameter>(cmd.CreateParameter(), param);
                 if (arg.Direction != ParameterDirection.Input)
-                    notinput.Add(param, arg);
+                    neq_inputs.Add(param, arg);
             }
             if (arg.SourceVersion == DataRowVersion.Original)
             {
@@ -96,12 +98,12 @@ namespace WSharp.Data
 
         /// <summary> 清除
         /// </summary>
-        /// <param name="notinput"></param>
-        private static void clear_not_input(Dictionary<IDataParameter, IDataParameter> notinput)
+        /// <param name="neq_inputs">parameter的方向不等于 ParameterDirection.Input</param>
+        private static void clear_neq_input(Dictionary<IDataParameter, IDataParameter> neq_inputs)
         {
-            foreach (var item in notinput)
+            foreach (var item in neq_inputs)
                 item.Key.Value = item.Value.Value;
-            notinput.Clear();
+            neq_inputs.Clear();
         }
 
         /// <summary> IDataReader 转 DataTable 
@@ -300,15 +302,15 @@ namespace WSharp.Data
         /// <returns></returns>
         private Result run<Result, Data>(string sql, IEnumerable<object> args, Action<IDbCommand, IEnumerable<object>, Dictionary<IDataParameter, IDataParameter>> init_command, Func<IDbCommand, Data, Result> fun, Data data)
         {
-            Dictionary<IDataParameter, IDataParameter> notinput = new Dictionary<IDataParameter, IDataParameter>();
+            Dictionary<IDataParameter, IDataParameter> neq_inputs = new Dictionary<IDataParameter, IDataParameter>();
             bool need_close = this._db_connection.State == ConnectionState.Closed;
             IDbCommand cmd = this.CreateCommand(sql);
-            init_command(cmd, args, notinput);
+            init_command(cmd, args, neq_inputs);
             this.Open();
             Result temp = fun.Invoke(cmd, data);
             if (need_close && !(temp is IDataReader))
                 this.Close();
-            TDbConnection.clear_not_input(notinput);
+            TDbConnection.clear_neq_input(neq_inputs);
             cmd.Parameters.Clear();
             return temp;
         }
@@ -391,13 +393,13 @@ namespace WSharp.Data
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="args"></param>
-        /// <param name="notinput"></param>
+        /// <param name="neq_inputs">parameter的方向不等于 ParameterDirection.Input</param>
         /// <returns></returns>
-        private void init_execute_command(IDbCommand cmd, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> notinput)
+        private void init_execute_command(IDbCommand cmd, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> neq_inputs)
         {
             var param_type = cmd.CreateParameter().GetType();
             cmd.Parameters.Clear();
-            TDbConnection.add_parameter(cmd, param_type, args, notinput);
+            TDbConnection.add_parameter(cmd, param_type, args, neq_inputs);
             if (cmd.CommandType != CommandType.StoredProcedure && cmd.CommandText.IndexOf(WSharp.Core.Assist.WHITE_SPACE, 0) == -1)
                 cmd.CommandType = CommandType.StoredProcedure;
         }
@@ -406,9 +408,9 @@ namespace WSharp.Data
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="args"></param>
-        /// <param name="notinput"></param>
+        /// <param name="neq_inputs">parameter的方向不等于 ParameterDirection.Input</param>
         /// <returns></returns>
-        private void init_number_command(IDbCommand cmd, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> notinput)
+        private void init_number_command(IDbCommand cmd, IEnumerable<object> args, Dictionary<IDataParameter, IDataParameter> neq_inputs)
         {
             int increment = 0;
             foreach (var item in args)

@@ -34,12 +34,20 @@ namespace UnitTest
         {
             int i = 0;
             i.A();
-            //byte[] bytes = new byte[0];
+            //byte[] bytes = new byte[0]; 
             //NameValueCollection nvc = new NameValueCollection();
             //nvc.Add("Value", "");
             //IDataParameter param = new SqlParameter();
             //param.GetType().IsInstanceOfType
             //encodings();
+
+            Console.WriteLine(Object.Equals(i, null));
+
+
+            Console.WriteLine(Object.Equals("", null));
+
+            Console.WriteLine(Object.Equals(null, null));
+
             Console.ReadKey(true);
         }
 

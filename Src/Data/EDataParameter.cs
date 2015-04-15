@@ -49,7 +49,7 @@ namespace WSharp.Data
         /// <param name="to">到</param>
         /// <param name="from">从</param>
         /// <returns>to</returns> 
-        public static T Copy<T>(T to, T from) where T : IDataParameter
+        public static T Copy<T>(T to, IDataParameter from) where T : IDataParameter
         {
             to.DbType = from.DbType;
             to.Direction = from.Direction;

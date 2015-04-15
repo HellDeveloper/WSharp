@@ -62,7 +62,7 @@ namespace WSharp.Data
             set;
         }
 
-        /// <summary>  
+        /// <summary>  Value 值的状态
         /// </summary>
         public virtual DataRowVersion SourceVersion
         {
@@ -85,6 +85,71 @@ namespace WSharp.Data
             get;
             set;
         }
+
+        /// <summary> 转换为其它的 Parameter
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public virtual T ConvertTo<T>() where T : class, IDataParameter, new()
+        {
+            T t = new T();
+            return EDataParameter.Copy(t, this); 
+        }
+
+        /// <summary> 不区分大小写比较 ParameterName
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (Object.Equals(this, null))
+                return false;
+            else if (obj is IDataParameter)
+                return String.Compare(this.ParameterName, (obj as IDataParameter).ParameterName, true) == 0;
+            return false;
+        }
+
+        /// <summary> Base 的 Hash 算法
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+ 	         return base.GetHashCode();
+        }
+
+        /// <summary> 返回 ParameterName
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+ 	         return base.ToString();
+        }
+
+        /// <summary> 不区分大小写比较 ParameterName
+        /// </summary>
+        /// <param name="param1"></param>
+        /// <param name="param2"></param>
+        /// <returns></returns>
+        public static bool operator ==(DataParameter param1, object param2)
+        {
+            if (Object.Equals(param1, null))
+                return false;
+            return param1.Equals(param2);
+        }
+
+        /// <summary> 不区分大小写比较 ParameterName
+        /// </summary>
+        /// <param name="param1"></param>
+        /// <param name="param2"></param>
+        /// <returns></returns>
+        public static bool operator !=(DataParameter param1, object param2)
+        {
+            if (Object.Equals(param1, null))
+                return false;
+            return !param1.Equals(param2);
+        }
+
+     
 
     }
 }
