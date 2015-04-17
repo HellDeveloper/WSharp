@@ -11,26 +11,6 @@ namespace WSharp.Data
     /// </summary>
     public class DbSqlServer : TDbConnection<System.Data.SqlClient.SqlConnection>
     {
-        #region 版本号
-        /// <summary> 版本号
-        /// </summary>
-        private int? _version;
-
-        /// <summary> 版本号
-        /// </summary>
-        public int? Version
-        {
-            get 
-            {
-                if (!this._version.HasValue)
-                {
-                    this._version = 200;
-                }
-                return this._version;
-            }
-        }
-        #endregion
-
         /// <summary> 限制查询 (ROW_NUMBER）必须是SQL Server 2005 以上
         /// </summary>
         /// <param name="select_sql">查询的SQL语句</param>
