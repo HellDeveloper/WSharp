@@ -15,10 +15,9 @@ namespace WSharp.Data
     public static class CommonSql
     {
 
-        /// <summary>
-        /// 默认的参数名的前缀
+        /// <summary> 默认的参数名的前缀
         /// </summary>
-        public const char DEFAULT_PARAMETER_NAME_PERFIX = '@';
+        public const char DEFAULT_PARAMETER_NAME_PREFIX = '@';
 
         /// <summary>获取字段名</summary>
         /// <param name="param"></param>
@@ -26,7 +25,7 @@ namespace WSharp.Data
         public static string GetFieldName<T>(T param) where T : IDataParameter
         {
             if (String.IsNullOrWhiteSpace(param.SourceColumn) && !String.IsNullOrWhiteSpace(param.ParameterName))
-                return param.ParameterName.TrimStart(EDataParameter.PARAMETER_NAME_PERFIX);
+                return param.ParameterName.TrimStart(EDataParameter.PARAMETER_NAME_PREFIX);
             return Assist.GetBeforeFirstWhiteSpace(param.SourceColumn);
         }
 

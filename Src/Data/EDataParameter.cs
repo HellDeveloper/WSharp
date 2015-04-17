@@ -19,14 +19,14 @@ namespace WSharp.Data
         /// <summary>
         /// ParameterName的前缀
         /// </summary>
-        internal static readonly char[] PARAMETER_NAME_PERFIX = { '@', ':' };
+        internal static readonly char[] PARAMETER_NAME_PREFIX = { '@', ':' };
 
         /// <summary>
         /// ParameterName的前缀
         /// </summary>
-        public static char[] ParameterNamePerfix
+        public static char[] ParameterNamePrefix
         {
-            get { return PARAMETER_NAME_PERFIX; }
+            get { return PARAMETER_NAME_PREFIX; }
         }
 
         /// <summary>

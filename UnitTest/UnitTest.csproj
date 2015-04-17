@@ -57,14 +57,16 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Core.cs" />
+    <Compile Include="Profile.cs" />
     <Compile Include="WebForm.cs" />
-    <Content Include="Create_Letter_Table.sql" />
+    <Content Include="SQL\Create_Profile_Table.sql" />
+    <Content Include="SQL\Create_Letter_Table.sql" />
     <Compile Include="Controller.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data.cs" />
-    <Content Include="Create_UnitTest_Database.sql" />
+    <Content Include="SQL\Create_UnitTest_Database.sql" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Src\WSharp.csproj">

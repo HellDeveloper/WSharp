@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace WSharp.Data
 {
-    /// <summary>
-    /// 
+    /// <summary> System.Data.DataTable, System.Data.DataColumnCollection 的扩展
     /// </summary>
     public static class EDataTable
     {
