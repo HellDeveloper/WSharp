@@ -53,10 +53,8 @@
     <Compile Include="Core\MongoID.cs" />
     <Compile Include="Core\Security.cs" />
     <Compile Include="Data\DataParameter.cs" />
-    <Compile Include="Data\DataParameterAttribute.cs" />
     <Compile Include="Data\EDataTable.cs" />
     <Compile Include="Data\DbSqlServer.cs" />
-    <Compile Include="Data\IDataModel.cs" />
     <Compile Include="Data\TDbConnection.cs" />
     <Compile Include="Generic\Comparable.cs" />
     <Compile Include="Generic\Comparer.cs" />

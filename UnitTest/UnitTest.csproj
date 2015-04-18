@@ -57,7 +57,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Core.cs" />
-    <Compile Include="Profile.cs" />
     <Compile Include="WebForm.cs" />
     <Content Include="SQL\Create_Profile_Table.sql" />
     <Content Include="SQL\Create_Letter_Table.sql" />
