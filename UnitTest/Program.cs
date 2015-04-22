@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -33,20 +34,6 @@ namespace UnitTest
     {
         public static void Main(string[] args)
         {
-            int i = 100;
-            //byte[] bytes = new byte[0]; 
-            //NameValueCollection nvc = new NameValueCollection();
-            //nvc.Add("Value", "");
-            //IDataParameter param = new SqlParameter();
-            //param.GetType().IsInstanceOfType
-            //encodings();
-            int? j = null;
-            string s = null;
-
-            Console.WriteLine(i + j);
-            Console.WriteLine(i.ToString() + s);
-            //Console.WriteLine(s.ToString());
-
             Console.ReadKey(true);
         }
 

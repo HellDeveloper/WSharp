@@ -19,6 +19,7 @@ namespace WSharp.Core
         static Assist()
         {
             _mongo_id = new MongoID();
+            
             Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         }
 
@@ -41,7 +42,6 @@ namespace WSharp.Core
         public static DateTime Epoch { get; private set; }
 
         /// <summary>
-        /// 
         /// </summary>
         private static readonly MongoID _mongo_id;
 
@@ -113,7 +113,16 @@ namespace WSharp.Core
             }
         }
 
-#if Hex
+        /// <summary> 本地计算机的主机名 hash.
+        /// </summary>
+        /// <returns></returns>
+        internal static byte[] HostNameHash()
+        {
+            var md5 = System.Security.Cryptography.MD5.Create();
+            var host = System.Net.Dns.GetHostName();
+            return md5.ComputeHash(Encoding.Default.GetBytes(host));
+        }
+
         static readonly char[] digits = 
         {  
         '0' , '1' , '2' , '3' , '4' , '5' ,  
@@ -124,6 +133,12 @@ namespace WSharp.Core
         'u' , 'v' , 'w' , 'x' , 'y' , 'z'  
         };
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="shift"></param>
+        /// <returns></returns>
         public static String ToOctonary(long i, int shift)
         {
             char[] buf = new char[32];
@@ -137,6 +152,5 @@ namespace WSharp.Core
             } while (i != 0);
             return new String(buf, charPos, (32 - charPos));
         }
-#endif
     }
 }
