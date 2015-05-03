@@ -20,10 +20,6 @@ namespace UnitTest
     {
         public static void Main(string[] args)
         {
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
             Console.ReadKey(true);
         }
 
