@@ -66,7 +66,7 @@ namespace WSharp.Core
         {
             var _bytes = new byte[12];
             Array.Copy(generate(), _bytes, 12);
-            return BitConverter.ToString(_bytes).Replace("-", "").ToUpper();
+            return BitConverter.ToString(_bytes).Replace("-", "").ToLower();
         }
 
         /// <summary>
@@ -93,25 +93,13 @@ namespace WSharp.Core
             }
         }
 
-        /// <summary>
-        ///   Generates the constants.
+        /// <summary> Generates the constants.
         /// </summary>
         private void GenerateConstants()
         {
-            _machineHash = GenerateHostHash();
+            _machineHash = Assist.HostNameHash();
             _procId = BitConverter.GetBytes(GenerateProcId());
             Array.Reverse(_procId);
-        }
-
-        /// <summary>
-        ///   Generates the host hash.
-        /// </summary>
-        /// <returns></returns>
-        private byte[] GenerateHostHash()
-        {
-            var md5 = MD5.Create();
-            var host = Dns.GetHostName();
-            return md5.ComputeHash(Encoding.Default.GetBytes(host));
         }
 
         /// <summary>
